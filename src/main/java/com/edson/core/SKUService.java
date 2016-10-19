@@ -1,22 +1,88 @@
 package com.edson.core;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.edson.entity.SKU;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Component
 @Transactional
 public class SKUService {
 
+	private static String CREATE_NOTIFICATION_TYPE = "criacao_sku";
+
 	@PersistenceContext
 	private EntityManager em;
+
+	@Autowired
+	private EpiconService epiconService;
+
+	public void createFromNotifications(String notifications) throws InterruptedException {
+		Type listType = new TypeToken<List<Notification>>() {
+		}.getType();
+		List<Notification> notificationList = new Gson().fromJson(notifications, listType);
+
+		if (CollectionUtils.isEmpty(notificationList)) {
+			return;
+		}
+
+		Executor executor = Executors.newFixedThreadPool(100);
+		CompletionService<SKU> completionService = new ExecutorCompletionService<SKU>(executor);
+
+		int submited = 0;
+		for (Notification notification : notificationList) {
+			if (notification == null || !CREATE_NOTIFICATION_TYPE.equals(notification.getTipo())) {
+				continue;
+			}
+			final String productId = notification.getParametros().getIdProduto();
+			final String skuId = notification.getParametros().getIdSku();
+
+			submited++;
+			completionService.submit(new Callable<SKU>() {
+				public SKU call() throws Exception {
+					return epiconService.getSku(productId, skuId);
+				}
+			});
+		}
+
+		int received = 0;
+		boolean errors = false;
+		List<SKU> skus = new ArrayList<SKU>();
+
+		while (received < submited && !errors) {
+			Future<SKU> resultFuture = completionService.take();
+			try {
+				SKU result = resultFuture.get();
+				skus.add(result);
+				System.out.println(result.getId());
+				received++;
+			} catch (Exception e) {
+				errors = true;
+			}
+		}
+		
+		for(SKU sku : skus){
+			this.em.persist(sku);
+		}
+	}
 
 	public void createSKU() {
 		SKU sku = new SKU();
