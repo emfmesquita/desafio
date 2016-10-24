@@ -26,6 +26,12 @@ public class EpiconService {
 	@Autowired
 	private SKUHelper skuHelper;
 
+	/**
+	 * Gets a sku from epicon server.
+	 * @param productId
+	 * @param skuId
+	 * @return
+	 */
 	public SKU getSku(String productId, String skuId) {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
@@ -37,7 +43,11 @@ public class EpiconService {
 				if (200 != statusCode) {
 					throw new RuntimeException(String.format(RESPONSE_FAIL_MESSAGE, statusCode, responseData));
 				}
-				return skuHelper.JsonToSku(responseData);
+				
+				SKU sku = skuHelper.JsonToSku(responseData);
+				sku.setEpiconId(sku.getId());
+				sku.setId(null);
+				return sku;
 			} finally {
 				response.close();
 			}

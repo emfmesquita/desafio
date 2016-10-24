@@ -1,0 +1,18 @@
+[
+  {
+    "tipo": "criacao_sku",
+    "dataEnvio": "2015-08-18T20:51:22",
+    "parametros": {
+      "idProduto": 270229,
+      "idSku": 322358
+    }
+  },
+  {
+    "tipo": "criacao_sku",
+    "dataEnvio": "2015-08-18T20:51:22",
+    "parametros": {
+      "idProduto": 270230,
+      "idSku": 322359
+    }
+  }
+]

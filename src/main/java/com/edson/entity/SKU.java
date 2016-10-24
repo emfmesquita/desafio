@@ -25,6 +25,7 @@ public class SKU implements Serializable {
 	private Boolean disponivel;
 	private Integer estoque;
 	private Boolean ativo;
+	private String epiconId;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "desafio")
@@ -107,6 +108,14 @@ public class SKU implements Serializable {
 
 	public void setAtivo(Boolean ativo) {
 		this.ativo = ativo;
+	}	
+
+	public String getEpiconId() {
+		return epiconId;
+	}
+
+	public void setEpiconId(String epiconId) {
+		this.epiconId = epiconId;
 	}
 
 	@Override
@@ -122,6 +131,7 @@ public class SKU implements Serializable {
 		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
 		result = prime * result + ((preco == null) ? 0 : preco.hashCode());
 		result = prime * result + ((precoDe == null) ? 0 : precoDe.hashCode());
+		result = prime * result + ((epiconId == null) ? 0 : epiconId.hashCode());
 		return result;
 	}
 
@@ -178,6 +188,11 @@ public class SKU implements Serializable {
 			if (other.precoDe != null)
 				return false;
 		} else if (!precoDe.equals(other.precoDe))
+			return false;
+		if (epiconId == null) {
+			if (other.epiconId != null)
+				return false;
+		} else if (!epiconId.equals(other.epiconId))
 			return false;
 		return true;
 	}

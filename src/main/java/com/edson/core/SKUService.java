@@ -48,6 +48,7 @@ public class SKUService {
 			return;
 		}
 
+		// gets many skus from epicon server in parallel
 		Executor executor = Executors.newCachedThreadPool();
 		CompletionService<SKU> completionService = new ExecutorCompletionService<SKU>(executor);
 
@@ -76,13 +77,13 @@ public class SKUService {
 			try {
 				SKU result = resultFuture.get();
 				skus.add(result);
-				System.out.println(result.getId());
 				received++;
 			} catch (Exception e) {
 				errors = true;
 			}
 		}
 
+		// although there is a for here the persistence is done in batch on a flush at the end
 		for (SKU sku : skus) {
 			this.em.persist(sku);
 		}

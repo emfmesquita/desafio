@@ -1,0 +1,13 @@
+{
+"id": "1",
+"nome": "Produto 1",
+"nomeReduzido": null,
+"codigo": "SKU1",
+"modelo": null,
+"foraDeLinha": false,
+"preco": 99.99,
+"precoDe": null,
+"disponivel": true,
+"estoque": 9,
+"ativo": true
+}
