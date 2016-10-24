@@ -51,4 +51,11 @@ public class ApiController {
 		model.addAttribute("content", skusJson);
 		return "content";
 	}
+    
+    @RequestMapping(value = "/available", method = { GET })
+    public String available(ModelMap model) {
+        String skusJson = skuService.available();
+        model.addAttribute("content", skusJson);
+        return "content";
+    }
 }

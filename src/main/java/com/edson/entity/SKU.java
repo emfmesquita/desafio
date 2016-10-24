@@ -20,8 +20,8 @@ public class SKU implements Serializable {
 	private String codigo;
 	private String modelo;
 	private Boolean foraDeLinha;
-	private String preco;
-	private String precoDe;
+	private Double preco;
+	private Double precoDe;
 	private Boolean disponivel;
 	private Integer estoque;
 	private Boolean ativo;
@@ -69,19 +69,19 @@ public class SKU implements Serializable {
 		this.foraDeLinha = foraDeLinha;
 	}
 
-	public String getPreco() {
+	public Double getPreco() {
 		return preco;
 	}
 
-	public void setPreco(String preco) {
+	public void setPreco(Double preco) {
 		this.preco = preco;
 	}
 
-	public String getPrecoDe() {
+	public Double getPrecoDe() {
 		return precoDe;
 	}
 
-	public void setPrecoDe(String precoDe) {
+	public void setPrecoDe(Double precoDe) {
 		this.precoDe = precoDe;
 	}
 

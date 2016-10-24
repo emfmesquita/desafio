@@ -118,6 +118,15 @@ public class SKUService {
 		List<SKU> skus = q.getResultList();
 		return skuHelper.SkusToJson(skus);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public String available(){
+		String qString = String.format("SELECT x FROM %s x where x.disponivel = :disponivel order by x.preco ASC", SKU.class.getSimpleName());
+		Query q = this.em.createQuery(qString);
+		q.setParameter("disponivel", true);
+		List<SKU> skus = q.getResultList();
+		return skuHelper.SkusToJson(skus);
+	}
 
 	private SKU findSKU(String id) {
 		if (StringUtils.isEmpty(id)) {
