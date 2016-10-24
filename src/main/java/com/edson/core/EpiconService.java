@@ -9,10 +9,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.edson.entity.SKU;
-import com.google.gson.Gson;
 
 @Component
 public class EpiconService {
@@ -22,13 +22,14 @@ public class EpiconService {
 	private static String PASSWORD = "Ip15q6u7X15EP22GS36XoNLrX2Jz0vqq";
 
 	private static String RESPONSE_FAIL_MESSAGE = "Response fail with status %d:\n%s";
-	private static String RESPONSE_PARSE_FAIL_MESSAGE = "Fail to parse sku from:\n%s";
+	
+	@Autowired
+	private SKUHelper skuHelper;
 
 	public SKU getSku(String productId, String skuId) {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			HttpGet httpget = buildRequest(productId, skuId);
-			;
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			try {
 				int statusCode = response.getStatusLine().getStatusCode();
@@ -36,7 +37,7 @@ public class EpiconService {
 				if (200 != statusCode) {
 					throw new RuntimeException(String.format(RESPONSE_FAIL_MESSAGE, statusCode, responseData));
 				}
-				return toSku(responseData);
+				return skuHelper.JsonToSku(responseData);
 			} finally {
 				response.close();
 			}
@@ -62,16 +63,5 @@ public class EpiconService {
 
 	private String buildAuthHeader() {
 		return "Basic " + Base64.encodeBase64String((USERNAME + ":" + PASSWORD).getBytes());
-	}
-
-	private SKU toSku(String responseData) {
-		Gson gson = new Gson();
-		SKU sku = null;
-		try {
-			sku = gson.fromJson(responseData, SKU.class);
-		} catch (Exception e) {
-			throw new RuntimeException(String.format(RESPONSE_PARSE_FAIL_MESSAGE, responseData));
-		}
-		return sku;
 	}
 }

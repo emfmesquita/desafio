@@ -1,5 +1,5 @@
 <html>
 	<body>
-		index
+		SKU created with id ${id}.
 	</body>
 </html>

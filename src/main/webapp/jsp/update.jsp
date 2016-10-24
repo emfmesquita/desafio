@@ -1,5 +1,5 @@
 <html>
 	<body>
-		index
+		SKU updated.
 	</body>
 </html>

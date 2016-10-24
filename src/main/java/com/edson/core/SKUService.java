@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.edson.entity.SKU;
 import com.google.gson.Gson;
@@ -35,6 +36,9 @@ public class SKUService {
 	@Autowired
 	private EpiconService epiconService;
 
+	@Autowired
+	private SKUHelper skuHelper;
+
 	public void createFromNotifications(String notifications) throws InterruptedException {
 		Type listType = new TypeToken<List<Notification>>() {
 		}.getType();
@@ -44,7 +48,7 @@ public class SKUService {
 			return;
 		}
 
-		Executor executor = Executors.newFixedThreadPool(100);
+		Executor executor = Executors.newCachedThreadPool();
 		CompletionService<SKU> completionService = new ExecutorCompletionService<SKU>(executor);
 
 		int submited = 0;
@@ -78,21 +82,52 @@ public class SKUService {
 				errors = true;
 			}
 		}
-		
-		for(SKU sku : skus){
+
+		for (SKU sku : skus) {
 			this.em.persist(sku);
 		}
 	}
 
-	public void createSKU() {
-		SKU sku = new SKU();
+	public String createFromJson(String skuJson) {
+		SKU sku = skuHelper.JsonToSku(skuJson);
+		sku.setId(null);
 		this.em.persist(sku);
+		return sku.getId();
 	}
 
+	public void updateFromJson(String skuJson) {
+		SKU sku = skuHelper.JsonToSku(skuJson);
+		findSKU(sku.getId()); // verifies if there is a sku with the given id
+		this.em.merge(sku);
+	}
+
+	public void deleteSku(String id) {
+		SKU sku = findSKU(id);
+		this.em.remove(sku);
+	}
+
+	public String find(String id) {
+		SKU sku = findSKU(id);
+		return skuHelper.SkuToJson(sku);
+	}	
+
 	@SuppressWarnings("unchecked")
-	public List<SKU> list() {
+	public String list() {
 		String qString = String.format("SELECT x FROM %s x", SKU.class.getSimpleName());
 		Query q = this.em.createQuery(qString);
-		return q.getResultList();
+		List<SKU> skus = q.getResultList();
+		return skuHelper.SkusToJson(skus);
+	}
+
+	private SKU findSKU(String id) {
+		if (StringUtils.isEmpty(id)) {
+			throw new RuntimeException("SKU id is missing.");
+		}
+
+		SKU dbSKU = this.em.find(SKU.class, id);
+		if (dbSKU == null) {
+			throw new RuntimeException(String.format("SKU with id %s not found.", id));
+		}
+		return dbSKU;
 	}
 }
